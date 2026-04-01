@@ -45,7 +45,16 @@ architecture Behavioral of acl_p1_fft_top_module is
 
 begin
 
+--set sempling freq 
+-- set window width 
+-- optional -- display certain freq on LEd -- you can implement DTMF aplication -- certain treshold cause to longer bright moment 
 
+
+-- get adc 
+-- manage packets 
+-- put send incremantal adress and data to wrapper fft 
+-- get freq value on write enable  signal when done high put itinside a buffer 
+-- display freq value and time value if necesery 
 
 
 

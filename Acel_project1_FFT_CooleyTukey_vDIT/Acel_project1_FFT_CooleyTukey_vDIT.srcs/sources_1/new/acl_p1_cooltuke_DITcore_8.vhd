@@ -1,0 +1,110 @@
+----------------------------------------------------------------------------------
+-- Company: 
+-- Engineer: 
+-- 
+-- Create Date: 01.04.2026 22:09:51
+-- Design Name: 
+-- Module Name: acl_p1_cooltuke_DITcore_8 - Behavioral
+-- Project Name: 
+-- Target Devices: 
+-- Tool Versions: 
+-- Description: 
+-- 
+-- Dependencies: 
+-- 
+-- Revision:
+-- Revision 0.01 - File Created
+-- Additional Comments:
+-- 
+----------------------------------------------------------------------------------
+
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+use work.CooTuk_fftCore_inout_package.all;
+
+-- Uncomment the following library declaration if using
+-- arithmetic functions with Signed or Unsigned values
+--use IEEE.NUMERIC_STD.ALL;
+
+-- Uncomment the following library declaration if instantiating
+-- any Xilinx leaf cells in this code.
+--library UNISIM;
+--use UNISIM.VComponents.all;
+
+entity acl_p1_cooltuke_DITcore_8 is
+    Generic(
+    W_Max : integer range -127 to 127 := 127 ;   -- 8bit
+    
+    W_0_n32r  : integer range -127 to 127 := 127 ;  
+    W_0_n32i  : integer range -127 to 127 := 0  ;
+    W_4_n32r  : integer range -127 to 127 := 90 ;
+    W_4_n32i  : integer range -127 to 127 := -90 ;
+    
+    W_8_n32r : integer range -127 to 127 := 0 ;    
+    W_8_n32i : integer range -127 to 127 := -127 ;
+    W_12_n32r : integer range -127 to 127 := -90 ;
+    W_12_n32i : integer range -127 to 127 := -90
+    );
+    Port ( 
+    ena : std_logic := '0' ;
+    io1 : inout inout_pin_2fft_core ;
+    io2 : inout inout_pin_2fft_core ;
+    io3 : inout inout_pin_2fft_core ;
+    io4 : inout inout_pin_2fft_core ;
+    io5 : inout inout_pin_2fft_core ;
+    io6 : inout inout_pin_2fft_core ;
+    io7 : inout inout_pin_2fft_core ;
+    io8 : inout inout_pin_2fft_core ;
+    
+    
+    clk : in STD_LOGIC  
+    );
+end acl_p1_cooltuke_DITcore_8;
+
+architecture Behavioral of acl_p1_cooltuke_DITcore_8 is
+
+begin
+
+acl_p1_cooltuke_DITcore_4_mdl_1 :entity work.acl_p1_cooltuke_DITcore_4 
+    Generic Map(
+    W_Max => W_Max ,   -- 8bit
+    W_0_n32r => W_0_n32r ,
+    W_0_n32i => W_0_n32i ,
+    W_8_n32r => W_4_n32r ,
+    W_8_n32i => W_4_n32i
+    )
+    Port Map( 
+    ena => ena , 
+    io1 => io1 , 
+    io2 => io5 , 
+    io3 => io2 ,
+    io4 => io6 ,
+    
+    clk  => clk   
+    );
+acl_p1_cooltuke_DITcore_4_mdl_2 :entity work.acl_p1_cooltuke_DITcore_4 
+    Generic Map(
+    W_Max => W_Max ,   -- 8bit
+    W_0_n32r => W_8_n32r   ,
+    W_0_n32i => W_8_n32i   ,
+    W_8_n32r => W_12_n32r  ,
+    W_8_n32i => W_12_n32i
+    )
+    Port Map( 
+    ena => ena , 
+    io1 => io3 , 
+    io2 => io7 ,                   
+    io3 => io4 ,                   
+    io4 => io8 ,                
+    
+    clk => clk          
+    );
+    
+     
+     
+     
+     
+     
+end Behavioral;
