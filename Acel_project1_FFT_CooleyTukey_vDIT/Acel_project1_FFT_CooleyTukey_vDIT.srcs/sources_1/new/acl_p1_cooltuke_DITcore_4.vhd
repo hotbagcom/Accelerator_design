@@ -35,20 +35,20 @@ use work.CooTuk_fftCore_inout_package.all;
 
 entity acl_p1_cooltuke_DITcore_4 is
     Generic(
-    W_Max : integer range -127 to 127 := 127 ;   -- 8bit
-    W_0_n32r  : integer range -127 to 127 := 127 ;  
-    W_0_n32i : integer range -127 to 127 := 0  ;
-    W_8_n32r: integer range -127 to 127 := 0 ;    
-    W_8_n32i: integer range -127 to 127 := -127 
+    W_Max     : W_bit_width_min_max := (  WkN  =>  X"7F"  ) ;   -- 8bit
+    W_0_n32r  : W_bit_width_min_max := (  WkN  =>  X"7F"  ) ;  
+    W_0_n32i  : W_bit_width_min_max := (  WkN  =>  X"00"  ) ;
+    W_8_n32r  : W_bit_width_min_max := (  WkN  =>  X"00"  ) ;    
+    W_8_n32i  : W_bit_width_min_max := (  WkN  =>  X"81"  ) 
     );
     Port ( 
     ena : std_logic := '0' ;
-    io1 : inout inout_pin_2fft_core ;
-    io2 : inout inout_pin_2fft_core ;
-    io3 : inout inout_pin_2fft_core ;
-    io4 : inout inout_pin_2fft_core ;
+    io1 : inout inout_1pin1_2fft_core ;
+    io2 : inout inout_1pin1_2fft_core ;
+    io3 : inout inout_1pin1_2fft_core ;
+    io4 : inout inout_1pin1_2fft_core ;
     
-    clk : in STD_LOGIC  
+    clk : in STD_LOGIC  := '0' 
     );
 end acl_p1_cooltuke_DITcore_4;
 

@@ -34,49 +34,48 @@ use work.CooTuk_fftCore_inout_package.all;
 
 entity acl_p1_cooltuke_DITcore_16 is
     Generic(
-    W_Max : integer range -127 to 127 := 127 ;   -- 8bit
+    W_Max     :  W_bit_width_min_max := (  WkN  => x"7f"        );   -- 8bit
+    W_0_n32r  :  W_bit_width_min_max := (  WkN  =>  x"7f"   )   ;
+    W_0_n32i  :  W_bit_width_min_max := (  WkN  => x"00"   )   ;
+    W_2_n32r  :  W_bit_width_min_max := (  WkN  => x"75"  )   ;
+    W_2_n32i  :  W_bit_width_min_max := (  WkN  => x"CF"  )   ;
+    W_4_n32r  :  W_bit_width_min_max := (  WkN  => X"5A"   )   ;
+    W_4_n32i  :  W_bit_width_min_max := (  WkN  => X"A6"  )   ;
+    W_6_n32r  :  W_bit_width_min_max := (  WkN  => X"31"   )   ; 
+    W_6_n32i  :  W_bit_width_min_max := (  WkN  => X"8B" )   ;
     
-    W_0_n32r  : integer range -127 to 127 := 127 ;  
-    W_0_n32i  : integer range -127 to 127 := 0  ;
-    W_2_n32r  : integer range -127 to 127 := 117 ;  
-    W_2_n32i  : integer range -127 to 127 := -49  ;
-    W_4_n32r  : integer range -127 to 127 := 90 ;
-    W_4_n32i  : integer range -127 to 127 := -90 ;
-    W_6_n32r  : integer range -127 to 127 := 49 ;  
-    W_6_n32i  : integer range -127 to 127 := -117  ;
-    
-    W_8_n32r  : integer range -127 to 127 := 0 ;    
-    W_8_n32i  : integer range -127 to 127 := -127 ;
-    W_10_n32r : integer range -127 to 127 := -49 ;  
-    W_10_n32i : integer range -127 to 127 := -117  ;
-    W_12_n32r : integer range -127 to 127 := -90 ;
-    W_12_n32i : integer range -127 to 127 := -90 ;
-    W_14_n32r : integer range -127 to 127 := -117 ;  
-    W_14_n32i : integer range -127 to 127 := -49  
-    
+    W_8_n32r  :  W_bit_width_min_max := (  WkN  => x"00"   )  ;  
+    W_8_n32i  :  W_bit_width_min_max := (  WkN  =>  X"81"  )  ;
+    W_10_n32r :  W_bit_width_min_max := (  WkN  => x"CF"  )  ;
+    W_10_n32i :  W_bit_width_min_max := (  WkN  => X"8B" )  ;
+    W_12_n32r :  W_bit_width_min_max := (  WkN  => X"A6"  )  ;
+    W_12_n32i :  W_bit_width_min_max := (  WkN  => X"A6"  )  ;
+    W_14_n32r :  W_bit_width_min_max := (  WkN  => X"8B" )  ;
+    W_14_n32i :  W_bit_width_min_max := (  WkN  => x"CF"  )  
+                                                           
     
     );
     Port ( 
     ena : std_logic := '0' ;
-    io1  : inout inout_pin_2fft_core ;
-    io2  : inout inout_pin_2fft_core ;
-    io3  : inout inout_pin_2fft_core ;
-    io4  : inout inout_pin_2fft_core ;
-    io5  : inout inout_pin_2fft_core ;
-    io6  : inout inout_pin_2fft_core ;
-    io7  : inout inout_pin_2fft_core ;
-    io8  : inout inout_pin_2fft_core ;
-    io9  : inout inout_pin_2fft_core ;
-    io10 : inout inout_pin_2fft_core ;
-    io11 : inout inout_pin_2fft_core ;
-    io12 : inout inout_pin_2fft_core ;
-    io13 : inout inout_pin_2fft_core ;
-    io14 : inout inout_pin_2fft_core ;
-    io15 : inout inout_pin_2fft_core ;
-    io16 : inout inout_pin_2fft_core ;
+    io1  : inout inout_1pin1_2fft_core ;
+    io2  : inout inout_1pin1_2fft_core ;
+    io3  : inout inout_1pin1_2fft_core ;
+    io4  : inout inout_1pin1_2fft_core ;
+    io5  : inout inout_1pin1_2fft_core ;
+    io6  : inout inout_1pin1_2fft_core ;
+    io7  : inout inout_1pin1_2fft_core ;
+    io8  : inout inout_1pin1_2fft_core ;
+    io9  : inout inout_1pin1_2fft_core ;
+    io10 : inout inout_1pin1_2fft_core ;
+    io11 : inout inout_1pin1_2fft_core ;
+    io12 : inout inout_1pin1_2fft_core ;
+    io13 : inout inout_1pin1_2fft_core ;
+    io14 : inout inout_1pin1_2fft_core ;
+    io15 : inout inout_1pin1_2fft_core ;
+    io16 : inout inout_1pin1_2fft_core ;
     
     
-    clk : in STD_LOGIC  
+    clk : in STD_LOGIC  := '0' 
     );
 end acl_p1_cooltuke_DITcore_16;
 

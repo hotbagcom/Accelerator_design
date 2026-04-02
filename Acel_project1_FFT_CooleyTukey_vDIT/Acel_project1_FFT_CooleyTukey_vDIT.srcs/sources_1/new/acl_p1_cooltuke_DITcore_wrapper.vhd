@@ -21,10 +21,12 @@
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
+use work.CooTuk_fftCore_inout_package.all;
+
 
 -- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
-use IEEE.NUMERIC_STD.ALL;
+-- arithmetic functions with Signed or Unsigned values;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx leaf cells in this code.
@@ -58,70 +60,158 @@ end acl_p1_cooltuke_DITcore_wrapper;
 architecture Behavioral of acl_p1_cooltuke_DITcore_wrapper is
 
 
-type miniram is array( integer range 0 to 512-1 ) of integer range 0 to 4095 ;  -- Time and Freq , memory  
-
-Signal S_time_in_ram : miniram  := (  others=>(1)  );
-Signal S_time_in_ram_flag : std_logic := '0' ; --when 2^L-1 value collected push new value to fft core
-Signal S_freq_out_ram : miniram := (  others=>(1)  );
-Signal S_freq_out_ram_flag : std_logic := '0' ; -- High to get out from fft module 
 
                                    -- 512-8  tane w de?eri sakla N 16 den N 512 ye i?lem yaps?n 
                                    -- 16 den 512 ye W(up:0 to (n1/2)-1)(down:n1) n1::2 to 512
-type mikroram is array( integer range 0 to 512-8 -1) of integer range 0 to 1023 ;  -- W value memory  
-Signal S_NL_2_W : mikroram := (  others=>(5)  ); 
 
 type State_4wraper is (Idle , Read_N_Set_W_4L , Run , Write ) ;
 Signal St_wrapper : State_4wraper  := Idle ;
 
 
-type input_4fft_module is record
-            S_up : integer range 0 to 4095 ; -- 2^12 -1
-            W_4down : integer range 0 to 1023 ;
-            S_down : integer range 0 to 4095 ;  -- 2^12 -1
-            end record;
-type output_4fft_module is record
-            S_up : integer range 0 to 4095 ; -- 2^12 -1
-            S_down : integer range 0 to 4095 ;  -- 2^12 -1
-            end record;
-            
-type input_couple_4fft is array(0 to 255) of input_4fft_module ;
 
+
+Signal S_Mass_conrol_Core_ena : std_logic_vector(9 downto 0 )  :=  (Others=>'0') ;-- for now use only =32 so that L-1 = "4" downtox"00"-- similar to N 
 -- 2 -> 4 -> 8 -> 16 -> 32 -> 64 -> 128 -> 256 -> 512
 -- 0 -> 1 -> 2 -> 3 --> 4 --> 5 ---> 6 ---> 7 ---> 8 
-type input_butterfly_4fft is array(0 to 8) of input_couple_4fft ;
-Signal S_input_to_module : input_butterfly_4fft := (others=>(others=>(1 , 1 , 1))) ;
+type module_pins is array ( integer range 0 to 31 ) of pin_width ; -- 
+Signal S_time_in_ram_zero : pin_width := ( pin=>(others=> '0')) ;
+Signal S_time_in_ram : module_pins   ;
+Signal S_time_in_ram_flag : std_logic := '0' ; --when 2^L-1 value collected push new value to fft core
+Signal S_freq_out_ram : module_pins  ;
+Signal S_freq_out_ram_flag : std_logic := '0' ; -- High to get out from fft module 
+
+type module_pins_ri is array ( integer range 0 to 31 ) of pin_reel_img ; -- 
+type out_module_from is array (integer range 0 to 5 ) of module_pins_ri ;
+Signal S_out_module_from_th : out_module_from ; -- 
 
 
-type output_couple_4fft is array(0 to 255) of output_4fft_module ;
-type output_butterfly_4fft is array(0 to 8) of output_couple_4fft ;
-Signal S_output_to_module : output_butterfly_4fft := (others=>(others=>(1 , 1))) ;
+
+--type output_couple_4fft is array(0 to 255) of output_4fft_module ;
+--type output_butterfly_4fft is array(0 to 8) of output_couple_4fft ;
+--Signal S_output_to_module : output_butterfly_4fft := (others=>(others=>(1 , 1))) ;
 
 
-Signal S_N : std_logic_vector(9 downto 0) := (others=>'0'); -- 512+511 limit 
-Signal S_N_half : std_logic_vector(9 downto 0) := (others=>'0'); -- 256+255 limit 
+--Signal S_N : std_logic_vector(9 downto 0) := (others=>'0'); -- 512+511 limit 
+--Signal S_N_half : std_logic_vector(9 downto 0) := (others=>'0'); -- 256+255 limit 
 
-Signal S_N_pre : std_logic_vector(9 downto 0) := (others=>'0'); -- 512+511 limit 
-Signal S_L_pre : integer range 1 to 10 := L ; 
+--Signal S_N_pre : std_logic_vector(9 downto 0) := (others=>'0'); -- 512+511 limit 
+--Signal S_L_pre : integer range 1 to 10 := L ; 
 Signal S_ready : std_logic := '0' ;
-Signal S_L_pipline_counter : integer range 1 to 10 := 1 ;
+--Signal S_L_pipline_counter : integer range 1 to 10 := 1 ;
             
-Signal S_L_change_wait : integer range 1 to 10*4 := 0 ; -- split one fft butterfly to 4 part 
+--Signal S_L_change_wait : integer range 1 to 10*4 := 0 ; -- split one fft butterfly to 4 part 
 Signal S_fftout_valid : std_logic := '0' ;
+
+
+Signal est : integer range -2047 to 2047 := 0; 
 
 begin
 
-acl_p1_cooltuke_DITcore_2_mdl      -- to save space use upper wing and switch W value and use lower wing 
-acl_p1_cooltuke_DITcore_4_mdl      -- to save space use upper wing and switch W value and use lower wing 
-acl_p1_cooltuke_DITcore_8_mdl      -- to save space use upper wing and switch W value and use lower wing 
-acl_p1_cooltuke_DITcore_16_mdl     -- to save space use upper wing and switch W value and use lower wing 
-acl_p1_cooltuke_DITcore_32_mdl     -- to save space use upper wing and switch W value and use lower wing 
-acl_p1_cooltuke_DITcore_64_mdl     -- to save space use upper wing and switch W value and use lower wing 
 
-acl_p1_cooltuke_DITcore_128_mdl  -- piplinable aplly even quarter and odd quarter 2 save sesource
-acl_p1_cooltuke_DITcore_256_mdl  -- piplinable aplly even quarter and odd quarter 2 save sesource
+ ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+    GEN_FFTMODL_2 : for j in 0 to 15 generate -- N = 32 için N/2 tanesi 16 tane FFTcore2 lazım 
+        Mas_produce_FFTcore2 : entity work.acl_p1_cooltuke_DITcore_2
+--            Generic(--            W_Max     : W_bit_width_min_max := (  WkN  =>  x"7f" ) ;   -- 8bit--            W_0_n32r  : W_bit_width_min_max := (  WkN  =>  x"7f" ) ;  --            W_0_n32i  : W_bit_width_min_max := (  WkN  => x"00" )--            );
+            Port Map( 
+            ena     => S_Mass_conrol_Core_ena(0) ,
+            
+            io1.input.reel   =>  S_time_in_ram(2*j).pin  ,
+            io1.input.imag   =>  S_time_in_ram_zero.pin   ,
+            io2.input.reel   =>  S_time_in_ram(2*j+1).pin ,
+            io2.input.imag   =>  S_time_in_ram_zero.pin   ,
+            
+            io1.output.reel   =>  S_out_module_from_th(0)(2*j).reel ,
+            io1.output.imag   =>  S_out_module_from_th(0)(2*j).imag ,
+            io2.output.reel   =>  S_out_module_from_th(0)(2*j+1).reel ,
+            io2.output.imag   =>  S_out_module_from_th(0)(2*j+1).imag ,
+                                                               
+            clk     => clk     );
+            
+    end Generate;                      
+ 
+ ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+    GEN_FFTMODL_4 : for j in 0 to 7 generate -- N = 32 için N/4 tanesi 8 tane FFTcore4 lazım 
+        Mas_produce_FFTcore4 : entity work.acl_p1_cooltuke_DITcore_4
+--    Generic(                                                                     W_0_n32r  : W_bit_width_min_max := (  WkN  =>  X"7F"  ) ;  W_8_n32r  : W_bit_width_min_max := (  WkN  =>  X"00"  ) ;       
+--    W_Max     : W_bit_width_min_max := (  WkN  =>  X"7F"  ) ;   -- 8bit          W_0_n32i  : W_bit_width_min_max := (  WkN  =>  X"00"  ) ;  W_8_n32i  : W_bit_width_min_max := (  WkN  =>  X"81"  )     );  
 
+            Port Map( 
+            ena     => S_Mass_conrol_Core_ena(1) ,
+            
+            io1.input.reel   =>  S_out_module_from_th(0)(4*j).reel ,
+            io1.input.imag   =>  S_out_module_from_th(0)(4*j).imag ,
+            io2.input.reel   =>  S_out_module_from_th(0)(4*j+1).reel ,  
+            io2.input.imag   =>  S_out_module_from_th(0)(4*j+1).imag ,  
+            io3.input.reel   =>  S_out_module_from_th(0)(4*j+2).reel ,
+            io3.input.imag   =>  S_out_module_from_th(0)(4*j+2).imag ,
+            io4.input.reel   =>  S_out_module_from_th(0)(4*j+3).reel ,  
+            io4.input.imag   =>  S_out_module_from_th(0)(4*j+3).imag ,  
+                                                 
+            io1.output.reel   =>  S_out_module_from_th(1)(4*j).reel ,              
+            io1.output.imag   =>  S_out_module_from_th(1)(4*j).imag ,              
+            io2.output.reel   =>  S_out_module_from_th(1)(4*j+1).reel ,            
+            io2.output.imag   =>  S_out_module_from_th(1)(4*j+1).imag ,            
+            io3.output.reel   =>  S_out_module_from_th(1)(4*j+2).reel ,            
+            io3.output.imag   =>  S_out_module_from_th(1)(4*j+2).imag ,               
+            io4.output.reel   =>  S_out_module_from_th(1)(4*j+3).reel ,                                     
+            io4.output.imag   =>  S_out_module_from_th(1)(4*j+3).imag ,                                     
+                                                      
+            clk     => clk    );
+    end Generate;                      
+ 
+ 
+  ----------------------------------------------------------------------------------------------------------------------------------------------------------------
+    GEN_FFTMODL_8 : for j in 0 to 3 generate -- N = 32 için N/8 tanesi 4 tane FFTcore8 lazım 
+        Mas_produce_FFTcore4 : entity work.acl_p1_cooltuke_DITcore_8
+--    Generic(                                                                     W_0_n32r  : W_bit_width_min_max := (  WkN  =>  X"7F"  ) ;  W_8_n32r  : W_bit_width_min_max := (  WkN  =>  X"00"  ) ;       
+--    W_Max     : W_bit_width_min_max := (  WkN  =>  X"7F"  ) ;   -- 8bit          W_0_n32i  : W_bit_width_min_max := (  WkN  =>  X"00"  ) ;  W_8_n32i  : W_bit_width_min_max := (  WkN  =>  X"81"  )     );  
 
-             
+            Port Map( 
+            ena     => S_Mass_conrol_Core_ena(2) ,
+            
+            io1.input.reel   =>  S_out_module_from_th(1)(8*j).reel ,
+            io1.input.imag   =>  S_out_module_from_th(1)(8*j).imag ,
+            io2.input.reel   =>  S_out_module_from_th(1)(8*j+1).reel ,  
+            io2.input.imag   =>  S_out_module_from_th(1)(8*j+1).imag ,  
+            io3.input.reel   =>  S_out_module_from_th(1)(8*j+2).reel ,
+            io3.input.imag   =>  S_out_module_from_th(1)(8*j+2).imag ,
+            io4.input.reel   =>  S_out_module_from_th(1)(8*j+3).reel ,  
+            io4.input.imag   =>  S_out_module_from_th(1)(8*j+3).imag ,  
+            io5.input.reel   =>  S_out_module_from_th(1)(8*j+4).reel ,
+            io5.input.imag   =>  S_out_module_from_th(1)(8*j+4).imag ,
+            io6.input.reel   =>  S_out_module_from_th(1)(8*j+5).reel ,  
+            io6.input.imag   =>  S_out_module_from_th(1)(8*j+5).imag ,  
+            io7.input.reel   =>  S_out_module_from_th(1)(8*j+6).reel ,
+            io7.input.imag   =>  S_out_module_from_th(1)(8*j+6).imag ,
+            io8.input.reel   =>  S_out_module_from_th(1)(8*j+7).reel ,  
+            io8.input.imag   =>  S_out_module_from_th(1)(8*j+7).imag ,  
+                                                     
+            io1.output.reel   =>  S_out_module_from_th(1)(8*j).reel ,
+            io1.output.imag   =>  S_out_module_from_th(1)(8*j).imag ,
+            io2.output.reel   =>  S_out_module_from_th(1)(8*j+1).reel ,  
+            io2.output.imag   =>  S_out_module_from_th(1)(8*j+1).imag ,  
+            io3.output.reel   =>  S_out_module_from_th(1)(8*j+2).reel ,
+            io3.output.imag   =>  S_out_module_from_th(1)(8*j+2).imag ,
+            io4.output.reel   =>  S_out_module_from_th(1)(8*j+3).reel ,  
+            io4.output.imag   =>  S_out_module_from_th(1)(8*j+3).imag ,  
+            io5.output.reel   =>  S_out_module_from_th(1)(8*j+4).reel ,
+            io5.output.imag   =>  S_out_module_from_th(1)(8*j+4).imag ,
+            io6.output.reel   =>  S_out_module_from_th(1)(8*j+5).reel ,  
+            io6.output.imag   =>  S_out_module_from_th(1)(8*j+5).imag ,  
+            io7.output.reel   =>  S_out_module_from_th(1)(8*j+6).reel ,
+            io7.output.imag   =>  S_out_module_from_th(1)(8*j+6).imag ,
+            io8.output.reel   =>  S_out_module_from_th(1)(8*j+7).reel ,  
+            io8.output.imag   =>  S_out_module_from_th(1)(8*j+7).imag ,  
+                                                                                         
+                                                      
+            clk     => clk    );
+    end Generate;                      
+ 
+ 
+ 
+ 
+ 
+ 
 ready <= S_ready ;
 
 process (clk) begin 
@@ -165,39 +255,7 @@ elsif ena = '1' then
     -- set w value according to new L value 
     
     -- first no change on L value then adapt L change scenaerio 
-    
-    GEN_FFTMODL :for j in 0 to 8 loop 
-    if j < S_L_pre then
-        
-        if j = 0 then -- 2 giriş 
-            acl_p1_cooltuke_DITcore_2_mdl
-        end if ;
-    
-    
-        for i in 0 to 255 loop         -- feed by time_input 
-        if i < to_integer(unsigned(S_N_half)) then 
-        
-            if S_L_pipline_counter <= S_L_pre then -- yeni L ile gelen veriyi ad?m ad?m sistemin W de?erlerini de?i?tirerek i?eri al
-                S_L_pipline_counter <= S_L_pipline_counter +1;
-          
-                    S_002input_module(i).S_up    <= S_time_in_ram(i);
-                    S_002input_module(i).W_4down <= S_NL_2_W( to_integer(unsigned(S_N)) );
-                    S_002input_module(i).S_down  <= S_time_in_ram(i+to_integer(unsigned(S_N(9 downto 1)));
-                    
-                    
-                    S_002output_module(i).S_up ;
-            
-            else 
-                S_L_pipline_counter <= 0 ;
-                
-            end if ;
-            
-        end if ;       
-        
-        end loop;      
-    end if ;
-    end loop;                      
-        
+           
     
     when Run => 
     
