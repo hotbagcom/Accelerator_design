@@ -41,18 +41,19 @@ entity acl_p1_cooltuke_DITcore_wrapper is
     data_time   : in signed(11 downto 0) := (others=>'0') ; 
     addr_time   : in std_logic_vector(9 downto 0) := (others=>'0') ; 
     we_time     : in std_logic := '0' ;
-    
+        rdy_time : out std_logic := '0' ;
     L : in integer range 1 to 10 := 5 ; 
     
-        data_freq   : out std_logic_vector(11 downto 0) := (others=>'0') ;   
+        data_freq   : out signed(11 downto 0) := (others=>'0') ;   
     addr_freq   : in std_logic_vector(9 downto 0) := (others=>'0') ;   
     re_freq      : in std_logic := '0' ;
+        rdy_freq : out std_logic := '0' ;
+    
+    
+    
+    
         done        : out std_logic := '0' ;
-    
-    
-    
-    
-        ready        : out std_logic := '0' ; -- when change on L value set 0 and when loading data
+        ready_data  : out std_logic := '0' ; -- when change on L value set 0 and when loading data
     rst : std_logic := '1' 
     );
 end acl_p1_cooltuke_DITcore_wrapper;
@@ -102,6 +103,8 @@ type out_module_from is array (integer range 0 to 5 ) of module_pins_ri ;
 Signal S_out_module_from_th : out_module_from ; -- 
 
  
+Signal S_pipl_tracker : unsigned(9 downto 0) := (others=>'0'); 
+
 
 
 Signal S_N : unsigned(10 downto 0) := (others=> '0');
@@ -445,45 +448,95 @@ begin
 -- 2 -> 4 -> 8 -> 16 -> 32 -> 64 -> 128 -> 256 -> 512      module 
 -- 0 -> 1 -> 2 -> 3 --> 4 --> 5 ---> 6 ---> 7 ---> 8       enable index of module                               
 -- 1 -> 2 -> 3 -> 4 --> 5 --> 6 ---> 7 ---> 8 ---> 9       L number
-process (clk) begin                                     
+process (clk) 
+begin                                     
                                                         
 if rising_edge(clk) then
 
-if rst = '0' then
+    ready_data <= S_pipl_tracker(5) ;
+    S_pipl_tracker(9 downto 1) <= S_pipl_tracker(8 downto 0) ;
 
-S_N <= resize( x"2"sll L , 11 ) ;
-S_Mass_conrol_Core_ena(L-1 downto 0) <= (others=>'1');
-
-elsif ena = '1' then
-
---data_time   : in std_logic_vector(11 downto 0) := (others=>'0') ; 
---addr_time   : in std_logic_vector(9 downto 0) := (others=>'0') ; 
-
-
-     ---set input of freq buffer
-        for j in 0 to to_integer(C_N_max)-1 loop
-         S_freq_out_ram(j).pin  <= S_out_module_from_th(4)(j).imag;
-        end loop ;
+    if rst = '0' then
+    
+    S_N <= resize( x"2"sll L , 11 ) ;
+    S_Mass_conrol_Core_ena(L-1 downto 0) <= (others=>'1');
+    
+    S_pipl_tracker(0) <= '0' ;
+    
+    
+    elsif ena = '1' then
+    
+        case St_wrapper is 
+        when Idle  => 
+        rdy_time <= '1' ;
+        St_wrapper <= Read_N_Set_W_4L ;
+        
+        S_pipl_tracker(0) <= '0' ;
+        
+                                                    
+                                                    
+        when Read_N_Set_W_4L  =>                    
+        S_pipl_tracker(0) <= '0' ;
+         -- async reset yapýp kullanlmayan modüllerde giriþlreden çýkýþlara direk baðlantý yapabilirsin 
+         -- tavsiye edilmez : düþündüðümü belirtmek için yazdým 
+         
+         
+         
+                                                                           
+                                                                           
+        when Run  =>                            --
+        rdy_time <= '0' ;                       --
+        S_pipl_tracker(0) <= '1' ;
+        -- The Sweet Escape 
+        
+                if we_time ='1' then
+                    S_time_in_ram(to_integer(  unsigned(acl_p1_cooltuke_revrsordr( L , addr_time ))  )).pin  <= data_time ;
+                end if ;
+                
+                
+                --set input of freq buffer
+                for j in 0 to to_integer(C_N_max)-1 loop
+                 S_freq_out_ram(j).pin  <= S_out_module_from_th(4)(j).imag;
+                end loop ;
+                
+        
+                if re_freq ='1' then -------------------L 
+                    data_freq <=  S_out_module_from_th(4)(    to_integer(unsigned(addr_freq))    ).reel ;
+                end if ;
+                rdy_freq <= S_pipl_tracker(4) ; -- insteaad of 5 for N= 32 to I chech 1 clk early and get the data on next cycle 
+               
+                
+                
+                
+        
+                                                
+                                                     
+                                                      
+        --when Write  =>                               
+                                                     
+                             
+        
+        
+        when others =>                                 
+        
+        S_pipl_tracker(0) <= '0' ;
+                        
+                                              
+        end case ;                              
+                                        
+     
     
         
-        if we_time ='1' then
-            S_time_in_ram(to_integer(  unsigned(acl_p1_cooltuke_revrsordr( L , addr_time ))  )).pin  <= data_time ;
-        end if ;
-
-        if re_freq ='1' then ----------------L 
-            data_freq <= S_out_module_from_th(4)( to_integer(unsigned(addr_freq)) ).reel ;
-        end if ;
        
-       
-       signed ve unsigned dönüþünde bitler deðiþiyor mu sadece yoksa taným olarak unsigned olarak mý tanýmlanýyor 
+       --signed ve unsigned dönüþünde bitler deðiþiyor mu sadece yoksa taným olarak unsigned olarak mý tanýmlanýyor 
         
-
-
-else -- ena = '0' 
-
-
-end if ;
-
+    else -- ena = '0' 
+    
+    
+    S_pipl_tracker(0) <= '0' ;
+    
+    end if ;
+    
 
 end if ;
 end process ;

@@ -34,6 +34,9 @@ package CooTuk_fftCore_inout_package is
     type pin_width is record 
             Pin  : signed(C_p_bit_len-1 downto 0) ;--12 bit  
             end record ;
+    type pin_width_unsigned is record 
+            Pin  : unsigned(C_p_bit_len-1 downto 0) ;--12 bit  
+            end record ;
     
     type pin_reel_img is record 
              reel , imag :   signed(C_p_bit_len-1 downto 0) ;--12 bit    
