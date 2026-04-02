@@ -31,9 +31,27 @@ use IEEE.NUMERIC_STD.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
+
+ function acl_p1_cooltuke_revrsordr (
+                        L : in integer range 1 to 10 := 5 ;
+                        index_in :in  std_logic_vector(9 downto 0) := (others=>'0') ; 
+                         ) return std_logic_vector(9 downto 0) is
+        variable v_temp : std_logic_vector(9 downto 0) := (others=>'0');
+    begin
+        
+            for i in 0 to C_Max_L-1 loop
+                if i < L then
+                    v_temp((L-1) - i) := index_in(i);
+                end if;
+            end loop;
+            
+        return v_temp;
+    end function;
+
+
 entity acl_p1_cooltuke_revrsordr is
     Port ( 
-        L : in integer range 1 to 10 := 3 ; 
+        L : in integer range 1 to 10 := 5 ; 
         index_in  :     in  std_logic_vector(9 downto 0) := (others=>'0') ; 
             index_out : out std_logic_vector(9 downto 0) := (others=>'0') ; 
         
