@@ -42,6 +42,7 @@ entity acl_p1_cooltuke_DITcore_2 is
     io1 : inout inout_1pin1_2fft_core ;
     io2 : inout inout_1pin1_2fft_core ;
     
+    rst 
     clk : in STD_LOGIC  := '0' 
     
     );
@@ -58,7 +59,9 @@ variable V2 : Var_reel_img  ;
 
 begin 
     if rising_edge(clk) then
-        if ena ='1' then
+        if rst = '0' then 
+        
+        elsif ena ='1' then
         
         
         V.reel  := W_Max. WkN   * io1.input.reel  ;
@@ -82,6 +85,10 @@ begin
         io2.output  <= io2.input   ;
         
         
+         -- async reset yapýp kullanlmayan modüllerde giriþlreden çýkýþlara direk baðlantý yapabilirsin 
+         -- tavsiye edilmez : düþündüðümü belirtmek için yazdým 
+         
+         
         
         end if ;
     end if ;

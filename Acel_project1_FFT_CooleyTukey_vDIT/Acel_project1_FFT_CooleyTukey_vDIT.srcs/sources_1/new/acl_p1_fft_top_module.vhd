@@ -59,11 +59,14 @@ signal S_sw_deb : std_logic_vector( 15 downto 0 ) := X"0000" ;
 
 constant C_500msecond : integer := 50_000_000 ;
 
+Signal S_upp_btn_2 : integer range 0 to 4*C_500msecond := 0 ;
 Signal S_mid_btn_2 : integer range 0 to 4*C_500msecond := 0 ;
 Signal S_lft_btn_2 : integer range 0 to 4*C_500msecond := 0 ;
-Signal S_rht_btn_2 : integer range 0 to 4*C_500msecond := 0 ;
 Signal S_dwn_btn_2 : integer range 0 to 4*C_500msecond := 0 ;
+Signal S_rht_btn_2 : integer range 0 to 4*C_500msecond := 0 ;
 
+Signal S_fre_buffer_indx_cntr : integer range 0 to 31  := 0 ;
+Signal S_fre_buffer_indx_value : pin_width_unsigned    := (Pin => (others=>'0' ) ) ;
 
 
 -- 47segment
@@ -88,6 +91,9 @@ Signal S_addr_freq  : std_logic_vector(9 downto 0) := (others=>'0') ;
 shared Variable Vs_addr_freq  : unsigned(9 downto 0) := (others=>'0') ; 
 Signal S_re_freq : std_logic := '0';
 Signal S_rdy_freq : std_logic := '0';
+Signal S_run_fft : std_logic := '0' ;
+       
+       
 
 type FFT_packet_buffer is array ( integer range 0 to 31 ) of pin_width ; 
 --Signal S_Time_buffer : FFT_packet_buffer  ;
@@ -162,6 +168,37 @@ Signal S_Freq_buffer : FFT_packet_buffer_unsigned  ;
 
 begin
 
+
+p3_08_debounce_mdl : entity work.acl_p1_debounce    
+    Generic Map(
+        refresh_rate => 1_000_000,  -- 10 ms
+        X_clk => 100_000_000
+    )
+    Port Map( 
+        clk => CLK_top ,
+        ena => '1' ,
+        
+        actv_btn => '1' , --for better energy consumption only necessery typeswill be activated 
+        actv_sw  => '1' ,
+        
+        btn => BTN_top ,
+          btn_deb  => S_btn_deb ,
+        sw => SW_top ,
+          sw_deb => S_sw_deb ,
+        
+        rst => '1'
+    );
+
+
+p3_08_47segment_mdl : entity work.acl_p1_47segment 
+    Port Map ( 
+    clk => CLK_top ,
+    ena => '1'  ,
+    hex4 => S_hex4 ,
+        SEGMENT4_top => SEGMENT4_top ,
+        SEGMENT7_top => SEGMENT7_top 
+    );
+                                     
 --set sempling freq 
 -- set window width 
 -- optional -- display certain freq on LEd -- you can implement DTMF aplication -- certain treshold cause to longer bright moment 
@@ -191,7 +228,13 @@ acl_p1_cooltuke_DITcore_wrapper_mdl :entity work.acl_p1_cooltuke_DITcore_wrapper
     re_freq         => S_re_freq  ,
         rdy_freq    => S_rdy_freq , 
     
-    
+byte3 => S_sw_deb(15 downto 12) ,
+byte2 => S_sw_deb(11 downto 8) ,
+byte1 => S_sw_deb(7 downto 4) ,
+byte0 => S_sw_deb(3 downto 0) ,
+
+run_fft => S_run_fft ,
+
 --        done        : out std_logic := '0' ;
     
         ready_data      => S_rdy_d_DIT_FFT , -- when change on L value set 0 and when loading data
@@ -202,32 +245,107 @@ acl_p1_cooltuke_DITcore_wrapper_mdl :entity work.acl_p1_cooltuke_DITcore_wrapper
 
 
 
---- dsp bloklarýn yetersi gelmesi durumunda fft corlarý stünlar halinde paylaþýmlý çaýþtýr  / 2 ye ya da 7 e bölebilirsin (gevelemeye baþladým :) ) 
-                                       -- kare kök alma durumunu nasýl yaparsýn bilemiyorum artýk  ,,
-                                       --  Çarpýmý topladýktan sonra resize yapýp msb kýsmýndan alýp iþleme sokabilirsin çýkýþ ta ona göre kaymýþ olur 
+--- dsp bloklar?n yetersi gelmesi durumunda fft corlar? st?nlar halinde payla??ml? ?a??t?r  / 2 ye ya da 7 e b?lebilirsin (gevelemeye ba?lad?m :) ) 
+                                       -- kare k?k alma durumunu nas?l yapars?n bilemiyorum art?k  ,,
+                                       --  ?arp?m? toplad?ktan sonra resize yap?p msb k?sm?ndan al?p i?leme sokabilirsin ??k?? ta ona g?re kaym?? olur 
+                       
+                         
+                         
+                         
                                                                          
 process (CLK_top)  
 begin      
                                        
 if rising_edge(CLK_top) then          
-
+S_btn_deb_PRE <= S_btn_deb ;
     
-    if S_btn_deb_pre(0) ='0' and S_btn_deb(0) ='1' then    
-            S_ena_DIT_FFT <= not S_ena_DIT_FFT ;      
+    if S_btn_deb(0) ='1' then
+        if S_upp_btn_2 <= C_500msecond*4-5  then
+        S_upp_btn_2 <= S_upp_btn_2 +1 ;
+            if   S_upp_btn_2 = C_500msecond*4-5 then
+                S_rst_DIT_FFT <= not S_rst_DIT_FFT ; 
+            end if ;  
+        end if ;
+    
+    else    
+        if S_upp_btn_2 > 5 then 
+            if  S_upp_btn_2 <= C_500msecond*4-5 then
+            S_ena_DIT_FFT <= not S_ena_DIT_FFT ;    
+            end if ;
+                S_upp_btn_2 <= 0;
+        end if ;
     end if ;
     
+    
+    
+    
+                                          
+    if S_btn_deb_pre(2)='1'  then
+     S_lft_btn_2 <= S_lft_btn_2 +1 ;                
+        if S_lft_btn_2 = C_500msecond*4-5 then 
+            
+            if S_fre_buffer_indx_cntr < 31-3 then  
+            S_fre_buffer_indx_cntr <= S_fre_buffer_indx_cntr + 4 ;
+            end if;
+            S_lft_btn_2 <= C_500msecond*2;                              
+        end if;      
+     else 
+        if S_lft_btn_2 > 5 and S_lft_btn_2 < C_500msecond*2 then  
+            if S_fre_buffer_indx_cntr < 31 then  
+                S_fre_buffer_indx_cntr <= S_fre_buffer_indx_cntr + 1 ;
+            end if;
+        end if ;
+            S_lft_btn_2 <= 0;  
+        
+    end if ;                               
+    if S_btn_deb_pre(4)='1'  then
+     S_rht_btn_2 <= S_rht_btn_2 +1 ;                
+        if S_rht_btn_2 = C_500msecond*4-5 then 
+            
+            if S_fre_buffer_indx_cntr >= 4 then  
+            S_fre_buffer_indx_cntr <= S_fre_buffer_indx_cntr - 4 ;
+            end if;
+            S_rht_btn_2 <= C_500msecond*2;                              
+        end if;      
+     else 
+        if S_rht_btn_2 > 5 and S_rht_btn_2 < C_500msecond*2 then  
+            if S_fre_buffer_indx_cntr >= 1 then  
+            S_fre_buffer_indx_cntr <= S_fre_buffer_indx_cntr - 1 ;
+            end if;
+        end if ;
+            S_rht_btn_2 <= 0;  
+        
+    end if ;
+   
+    
+   -- bir de?er in art?m ve azalt?m?n? yaparak hex ve bit  de?erlerini de?i?tiir 
+ ---   S_hex4 <= anf 4 hex 
+  --  led <= any 16 bit 
+    S_fre_buffer_indx_value <= S_Freq_buffer(S_fre_buffer_indx_cntr) ;
+    
+    S_hex4(11 downto 0) <= std_logic_vector( S_fre_buffer_indx_value.Pin ) ;
+    
+    S_hex4(15 downto 12)  <=  std_logic_vector(to_unsigned(S_fre_buffer_indx_cntr,4))  ;
+    
+    
+    
+    
+    
     if S_btn_deb_pre(1) ='0' and S_btn_deb(1) ='1' then    
-            S_rst_DIT_FFT <= not S_rst_DIT_FFT ;   
     end if ;
     
     if S_btn_deb_pre(2) ='0' and S_btn_deb(2) ='1' then      
             Vs_addr_time:= (others=> '0') ;   
-    elsif Vs_addr_time < "0000100000" and S_rdy_time ='1' then  -- L =5 -> N =32 için 
+    elsif Vs_addr_time < "0000100000" and S_rdy_time ='1' then  -- L =5 -> N =32 i?in 
         S_we_time <= '1' ;
         S_data_time <=  S_Time_buffer(  to_integer((Vs_addr_time)) ).Pin;
         Vs_addr_time := ( (Vs_addr_time)  +  (x"1") )  ;
         S_addr_time <= std_logic_vector(Vs_addr_time) ;
+        if Vs_addr_time = "0000011111" then 
+            S_run_fft <= '1' ;
+        end if ;
     else 
+        S_run_fft <= '0' ;
         S_we_time <= '0' ;
     end if ;
         
@@ -236,11 +354,11 @@ if rising_edge(CLK_top) then
     
     if S_btn_deb_pre(3) ='0' and S_btn_deb(3) ='1' then      
             Vs_addr_freq := (others=> '0') ;   
-    elsif Vs_addr_freq <= "0000100010" and S_rdy_freq ='1' then  -- L =5 -> N =32 için  -- zaman kaymasýndan dolayý 
+    elsif Vs_addr_freq <= "0000100010" and S_rdy_freq ='1' then  -- L =5 -> N =32 i?in  -- zaman kaymas?ndan dolay? 
         S_re_freq <= '1' ;
             if Vs_addr_freq > "0000000000" then
                 
-                S_Freq_buffer(  to_integer(Vs_addr_freq-X"1") ).Pin <= s_2_uns(11 ,S_data_freq ); -- data kullanýlabilir formuna 
+                S_Freq_buffer(  to_integer(Vs_addr_freq-X"1") ).Pin <= s_2_uns(11 ,S_data_freq ); -- data kullan?labilir formuna 
             end if ;
         Vs_addr_freq := ( (Vs_addr_freq)  +  (x"1") )  ;
         S_addr_freq <= std_logic_vector(Vs_addr_freq) ;
@@ -252,7 +370,7 @@ if rising_edge(CLK_top) then
     
     
     
-    -- adc write to unsigned std_logic_vector --->   S_Time_buffer <= unsigned_to_signed(11 , ADC_VALUE_ÝN )
+    -- adc write to unsigned std_logic_vector --->   S_Time_buffer <= unsigned_to_signed(11 , ADC_VALUE_?N )
     
 end if ;
 end process ;

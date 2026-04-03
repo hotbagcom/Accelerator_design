@@ -74,11 +74,11 @@ package CooTuk_fftCore_inout_package is
           
             
       type Var_width_min_max is record 
-            Var: signed(C_v_bit_len downto 0) ;-- 19 wil be enouh 
+            Var: signed(C_v_bit_len-1 downto 0) ;-- 19 wil be enouh 
             end record ;
             
      type Var_reel_img is record 
-             reel , imag :  signed(C_v_bit_len downto 0) ;-- 19 wil be enouh      
+             reel , imag :  signed(C_v_bit_len-1 downto 0) ;-- 19 wil be enouh      
             end record ;
      
 

@@ -1,0 +1,85 @@
+Copyright 1986-2020 Xilinx, Inc. All Rights Reserved.
+--------------------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2020.1 (win64) Build 2902540 Wed May 27 19:54:49 MDT 2020
+| Date         : Fri Apr  3 06:37:08 2026
+| Host         : DESKTOP-VQ00TNA running 64-bit major release  (build 9200)
+| Command      : report_control_sets -verbose -file acl_p1_fft_top_module_control_sets_placed.rpt
+| Design       : acl_p1_fft_top_module
+| Device       : xc7a35t
+--------------------------------------------------------------------------------------------------
+
+Control Set Information
+
+Table of Contents
+-----------------
+1. Summary
+2. Histogram
+3. Flip-Flop Distribution
+4. Detailed Control Set Information
+
+1. Summary
+----------
+
++----------------------------------------------------------+-------+
+|                          Status                          | Count |
++----------------------------------------------------------+-------+
+| Total control sets                                       |     7 |
+|    Minimum number of control sets                        |     7 |
+|    Addition due to synthesis replication                 |     0 |
+|    Addition due to physical synthesis replication        |     0 |
+| Unused register locations in slices containing registers |    22 |
++----------------------------------------------------------+-------+
+* Control sets can be merged at opt_design using control_set_merge or merge_equivalent_drivers
+** Run report_qor_suggestions for automated merging and remapping suggestions
+
+
+2. Histogram
+------------
+
++--------------------+-------+
+|       Fanout       | Count |
++--------------------+-------+
+| Total control sets |     7 |
+| >= 0 to < 4        |     1 |
+| >= 4 to < 6        |     1 |
+| >= 6 to < 8        |     1 |
+| >= 8 to < 10       |     0 |
+| >= 10 to < 12      |     0 |
+| >= 12 to < 14      |     1 |
+| >= 14 to < 16      |     0 |
+| >= 16              |     3 |
++--------------------+-------+
+* Control sets can be remapped at either synth_design or opt_design
+
+
+3. Flip-Flop Distribution
+-------------------------
+
++--------------+-----------------------+------------------------+-----------------+--------------+
+| Clock Enable | Synchronous Set/Reset | Asynchronous Set/Reset | Total Registers | Total Slices |
++--------------+-----------------------+------------------------+-----------------+--------------+
+| No           | No                    | No                     |              24 |            8 |
+| No           | No                    | Yes                    |               0 |            0 |
+| No           | Yes                   | No                     |              56 |           15 |
+| Yes          | No                    | No                     |              26 |           13 |
+| Yes          | No                    | Yes                    |               0 |            0 |
+| Yes          | Yes                   | No                     |               0 |            0 |
++--------------+-----------------------+------------------------+-----------------+--------------+
+
+
+4. Detailed Control Set Information
+-----------------------------------
+
++--------------------+--------------------------------------------------+-------------------------+------------------+----------------+--------------+
+|    Clock Signal    |                   Enable Signal                  |     Set/Reset Signal    | Slice Load Count | Bel Load Count | Bels / Slice |
++--------------------+--------------------------------------------------+-------------------------+------------------+----------------+--------------+
+|  CLK_top_IBUF_BUFG | p3_08_debounce_mdl/btn_deb[4]_i_1_n_0            |                         |                1 |              2 |         2.00 |
+|  CLK_top_IBUF_BUFG | S_fre_buffer_indx_cntr[4]_i_1_n_0                |                         |                4 |              5 |         1.25 |
+|  CLK_top_IBUF_BUFG | p3_08_debounce_mdl/Si_refresh_counter[6]_i_1_n_0 |                         |                3 |              7 |         2.33 |
+|  CLK_top_IBUF_BUFG | p3_08_47segment_mdl/S_segment_counter            |                         |                5 |             12 |         2.40 |
+|  CLK_top_IBUF_BUFG |                                                  |                         |                8 |             24 |         3.00 |
+|  CLK_top_IBUF_BUFG |                                                  | S_rht_btn_2[27]_i_1_n_0 |                6 |             28 |         4.67 |
+|  CLK_top_IBUF_BUFG |                                                  | p_0_out[0]              |                9 |             28 |         3.11 |
++--------------------+--------------------------------------------------+-------------------------+------------------+----------------+--------------+
+
+

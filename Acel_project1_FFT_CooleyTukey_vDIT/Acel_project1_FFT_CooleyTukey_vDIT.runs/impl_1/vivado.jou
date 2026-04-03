@@ -1,0 +1,12 @@
+#-----------------------------------------------------------
+# Vivado v2020.1 (64-bit)
+# SW Build 2902540 on Wed May 27 19:54:49 MDT 2020
+# IP Build 2902112 on Wed May 27 22:43:36 MDT 2020
+# Start of session at: Fri Apr  3 06:36:33 2026
+# Process ID: 55200
+# Current directory: C:/Users/arify/WS_/vhdl_post_grad/Accelerator_design/Acel_project1_FFT_CooleyTukey_vDIT/Acel_project1_FFT_CooleyTukey_vDIT.runs/impl_1
+# Command line: vivado.exe -log acl_p1_fft_top_module.vdi -applog -product Vivado -messageDb vivado.pb -mode batch -source acl_p1_fft_top_module.tcl -notrace
+# Log file: C:/Users/arify/WS_/vhdl_post_grad/Accelerator_design/Acel_project1_FFT_CooleyTukey_vDIT/Acel_project1_FFT_CooleyTukey_vDIT.runs/impl_1/acl_p1_fft_top_module.vdi
+# Journal file: C:/Users/arify/WS_/vhdl_post_grad/Accelerator_design/Acel_project1_FFT_CooleyTukey_vDIT/Acel_project1_FFT_CooleyTukey_vDIT.runs/impl_1\vivado.jou
+#-----------------------------------------------------------
+source acl_p1_fft_top_module.tcl -notrace
