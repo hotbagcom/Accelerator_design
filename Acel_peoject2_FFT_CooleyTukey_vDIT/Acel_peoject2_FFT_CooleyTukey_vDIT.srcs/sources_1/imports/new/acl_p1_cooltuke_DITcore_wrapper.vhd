@@ -38,14 +38,14 @@ entity acl_p1_cooltuke_DITcore_wrapper is
     clk : in STD_LOGIC  := '0' ;
     
     ena         : in std_logic := '0' ;
-    data_time   : in signed(11 downto 0) := (others=>'0') ; 
-    addr_time   : in std_logic_vector(number_of_module_type_minus1 downto 0) := (others=>'0') ; 
+    data_time   : in  pin_width := (Pin=>(others=>'0' )) ; 
+    addr_time   : in std_logic_vector(8 downto 0) := (others=>'0') ; 
     we_time     : in std_logic := '0' ;
         rdy_time : out std_logic := '0' ;
     userL_int : in integer range 0 to 9 := 4 ; 
     
-        data_freq   : out signed(11 downto 0) := (others=>'0') ;   
-    addr_freq   : in std_logic_vector(number_of_module_type_minus1 downto 0) := (others=>'0') ;   
+        data_freq   : out  pin_reel_img := (reel=> (Pin=>(others=>'0' )) , imag=>(Pin=>(others=>'0' ))) ; 
+    addr_freq   : in std_logic_vector(8 downto 0) := (others=>'0') ;   
     re_freq      : in std_logic := '0' ;
         rdy_freq : out std_logic := '0' ;
     
@@ -74,13 +74,13 @@ Signal St_wrapper : State_4wraper  := St_Idle ;
 
 
  function acl_p1_cooltuke_revrsordr (
-                        L :  integer range 1 to 10 := 5 ;
-                        index_in :  std_logic_vector(9 downto 0) := (others=>'0') 
+                        L :  integer range 1 to 8  ;
+                        index_in :  std_logic_vector(8 downto 0)  
                          )   return std_logic_vector is
-        variable v_temp : std_logic_vector(9 downto 0) := (others=>'0');
+        variable v_temp : std_logic_vector(8 downto 0) := (others=>'0');
     begin
         
-            for i in 0 to 9 loop
+            for i in 0 to 7 loop
                 if i < L then
                     v_temp((L-1) - i) := index_in(i);
                 end if;
@@ -140,7 +140,7 @@ Signal S_M_select_blockram : M_block_ram := (
 Signal S_ena_CoreN : std_logic := '0' ;
 Signal S_coreN_complete : std_logic := '0' ;
 Signal S_wraper_rst : std_logic := '0' ;
-
+Signal M_clk : std_logic := '0' ;
 
 begin
 
@@ -166,7 +166,7 @@ begin
     complete => S_coreN_complete , --impulse
     
     rst => S_wraper_rst ,
-    clk => clk 
+    clk => M_clk 
     );
                                    
                                                        
@@ -176,18 +176,23 @@ begin
 -- 1 -> 2 -> 3 -> 4 --> 5 --> 6 ---> 7 ---> 8 ---> 9       L number
               --  0     0     1       2     3     4        rst index of module        
               
-              
+ process (clk) begin 
+ if rising_edge(clk) then
+ M_clk <= not M_clk ;
+ 
+ end if ;
+ end process ;             
                                
               
-process (clk ) 
+process (M_clk ) 
 
-variable V_time_adress : std_logic_vector(number_of_module_type_minus1+1 downto 0) ;
+variable V_time_adress : std_logic_vector(9 downto 0) ;
 begin                
  
                                                         
                                                               
                                                         
-if rising_edge(clk) then
+if rising_edge(M_clk) then
 
 
     S_re_freq_pre <= re_freq;
@@ -227,7 +232,7 @@ if rising_edge(clk) then
                     
 --                    user defined bölgelere gelince segmenti ibir üste geçir 
                     V_time_adress := '0' & acl_p1_cooltuke_revrsordr( userL_int , addr_time ) ;
-                    S_M_N_main( to_integer(unsigned(  V_time_adress(number_of_module_type_minus1-1 downto number_of_module_type_minus1 )) )    )(to_integer(  unsigned(  V_time_adress(number_of_module_type_minus1-1 downto 0) )     )).input.reel.pin  <= data_time ;
+                    S_M_N_main( to_integer(unsigned(  V_time_adress(number_of_module_type_minus1-1 downto number_of_module_type_minus1 )) )    )(to_integer(  unsigned(  V_time_adress(number_of_module_type_minus1-1 downto 0) )     )).input.reel.pin  <= data_time.pin ;
                     
                 elsif run_fft = '1' then -- son veriyle birlikte run komutu geldi 
                     St_wrapper <= St_Run ; 
@@ -269,9 +274,14 @@ if rising_edge(clk) then
                         rdy_time <= '0' ;
                         rdy_freq <= '1' ;   
                 if re_freq ='1' then -------------------L 
-                    data_freq <=  S_M_N_main( to_integer(unsigned(  V_time_adress(number_of_module_type_minus1-1 downto number_of_module_type_minus1 )) )    )(to_integer(  unsigned(  V_time_adress(number_of_module_type_minus1-1 downto 0) )     )).output.reel.pin  ;
+                
+                if addr_freq(number_of_module_type_minus1) = '0' then
+                    data_freq <=  S_M_N_main( 0  )(to_integer( unsigned (  addr_freq(number_of_module_type_minus1-1 downto 0) )     )).output  ;
+                else
+                    data_freq <=  S_M_N_main( 0  )(to_integer( unsigned (  addr_freq(number_of_module_type_minus1-1 downto 0) )     )).output  ;
+                end if ;   
                     
-                elsif S_re_freq_pre ='1' and re_freq ='0' then
+                elsif (S_re_freq_pre ='1' and re_freq ='0') or (addr_freq = "000100000" )then -- N = 32
                     St_wrapper <= St_Done ; 
                 end if ;
                 

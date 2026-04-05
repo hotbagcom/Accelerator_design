@@ -82,10 +82,10 @@ begin
        
         
         -- 128 ile çarpýp 128 ile bölmeyi dene optimizasyon seçeneði 
-        io1.output.reel.Pin  <=  resize ( ( V.reel  + ( V1.reel - V2.reel )   ) srl 8  , 12) ; -- 12 bit sizze ,  6->256 <= 128 çarpým bazý iki sayý toplandýðý için iki katýna çýkýyor iki de oradan bölünüyor
-        io1.output.imag.Pin  <=  resize ( ( V.imag  + ( V1.imag + V2.imag )   ) srl 8  , 12) ; -- 128 çarpým bazý iki sayý toplandýðý için iki katýna çýkýyor iki de oradan bölünüyor
-        io2.output.reel.Pin  <=  resize ( ( V.reel  - ( V1.reel - V2.reel )   ) srl 8  , 12) ; -- 128 çarpým bazý iki sayý toplandýðý için iki katýna çýkýyor iki de oradan bölünüyor
-        io2.output.imag.Pin  <=  resize ( ( V.imag  - ( V1.imag + V2.imag )   ) srl 8  , 12) ; -- 128 çarpým bazý iki sayý toplandýðý için iki katýna çýkýyor iki de oradan bölünüyor
+        io1.output.reel.Pin  <=  resize ( ( V.reel  + ( V1.reel - V2.reel )   ) srl 8  , C_p_bit_len) ; -- 12 bit sizze ,  6->256 <= 128 çarpým bazý iki sayý toplandýðý için iki katýna çýkýyor iki de oradan bölünüyor
+        io1.output.imag.Pin  <=  resize ( ( V.imag  + ( V1.imag + V2.imag )   ) srl 8  , C_p_bit_len) ; -- 128 çarpým bazý iki sayý toplandýðý için iki katýna çýkýyor iki de oradan bölünüyor
+        io2.output.reel.Pin  <=  resize ( ( V.reel  - ( V1.reel - V2.reel )   ) srl 8  , C_p_bit_len) ; -- 128 çarpým bazý iki sayý toplandýðý için iki katýna çýkýyor iki de oradan bölünüyor
+        io2.output.imag.Pin  <=  resize ( ( V.imag  - ( V1.imag + V2.imag )   ) srl 8  , C_p_bit_len) ; -- 128 çarpým bazý iki sayý toplandýðý için iki katýna çýkýyor iki de oradan bölünüyor
                                                                             
                                                                             
         done <= '1' ;

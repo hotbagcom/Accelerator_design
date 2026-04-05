@@ -65,7 +65,7 @@ Signal M_N : ix ;
 Signal W : W_rom := (others=>(C_Wrom(0)  ));
 
 
-Signal L_cntr : integer range 0 to 9 := 0 ;
+Signal L_cntr : integer range 0 to 9 := 3 ;
 Signal L_cntr_user_max : integer range 0 to 9 := Lmax_int ;
 Signal M_cntr_user_max : integer range 0 to 63 := N_max_int  ;
 
@@ -89,8 +89,8 @@ Signal S_done : std_logic := '0' ;
 Signal S_rst : std_logic := '0' ;
 Signal ena_pre : std_logic := '0' ;
 
-Shared Variable V_j_for  : std_logic_vector(7 downto 0) := (others=>'0') ;
-Shared Variable V_ix_m  : std_logic_vector(6 downto 0) := (others=>'0') ;
+Shared Variable V_j_for  : std_logic_vector(9 downto 0) := (others=>'0') ;
+Shared Variable V_ix_m  : std_logic_vector(8 downto 0) := (others=>'0') ;
 Shared Variable V_sg_m  : std_logic_vector(1 downto 0) := (others=>'0') ;
 Shared Variable V_W_m  : unsigned(7 downto 0) := (others=>'0') ;
 
@@ -204,20 +204,43 @@ end if ;
                         for i in 0 to 1 loop -- ilki w sýz olan ikincisi W ile çarpýlacak olan 
  if j*2 <M_cntr_user_max and L_cntr_user_max <= Lmax_int then 
  
-                            V_j_for :=  std_logic_vector(to_unsigned(   (i*(number_of_pin_div2_minus1+1) +j),Lmax_int+1  )) ;-- L is 0 
+                            V_j_for(Lmax_int downto 0) :=  std_logic_vector(to_unsigned(   (i*(number_of_pin_div2_minus1+1) +j),Lmax_int+1  )) ;-- L is 0 
                             
                             if L_cntr = 0 then
-                                V_ix_m  :=  V_j_for(Lmax_int downto 1) ;
                                 V_W_m := (Others =>('0') ) ;
-                            elsif L_cntr = Lmax_int then
-                                V_ix_m  :=  V_j_for(Lmax_int-1 downto 0) ;
-                                
-                            else
-                                V_ix_m :=  V_j_for(Lmax_int downto  L_cntr+1) & V_j_for(L_cntr-1 downto  0) ;
-                                
+                                 
+                            else 
 --                                V_W_m := std_logic_vector(to_unsigned(j,Lmax_int+1)) ;--  sra Lmax_int ;
-                                V_W_m := shift_left(to_unsigned(j, Lmax_int), Lmax_int - L_cntr+ W_index_multiplier);
+                                V_W_m := shift_left(to_unsigned(j, 8), Lmax_int - L_cntr+ W_index_multiplier);
                             end if ;
+                            
+                            
+                            if L_cntr = 0 then
+                                V_ix_m :=  V_j_for(9 downto 1) ;                                 
+                            elsif L_cntr = 1 then
+                                V_ix_m :=  V_j_for(9 downto  2)  & V_j_for(  0) ;                         
+                            elsif L_cntr = 2 then
+                                V_ix_m :=  V_j_for(9 downto  3)  & V_j_for( 1 downto  0) ;                         
+                            elsif L_cntr = 3 then
+                                V_ix_m :=  V_j_for(9 downto  4)  & V_j_for( 2 downto 0) ;                         
+                            elsif L_cntr = 4 then
+                                V_ix_m :=  V_j_for(9 downto  5)  & V_j_for( 3 downto 0) ;                
+                            elsif L_cntr = 5 then
+                                V_ix_m :=  V_j_for(9 downto  6)  & V_j_for( 4 downto  0) ;                         
+                            elsif L_cntr = 6 then
+                                V_ix_m :=  V_j_for(9 downto  7)  & V_j_for( 5 downto 0) ;                         
+                            elsif L_cntr = 7 then
+                                V_ix_m :=  V_j_for(9 downto  8)  & V_j_for( 6 downto 0) ; 
+                                                     
+                            elsif L_cntr = 8 then
+                                V_ix_m :=  V_j_for(9)  & V_j_for( 7 downto 0) ; 
+                            else
+                                V_ix_m :=  V_j_for(8 downto  0) ;
+                                 
+                            end if ;
+                            
+                            
+                            
                             
                             V_sg_m := '0' & V_j_for(L_cntr) ;
                             

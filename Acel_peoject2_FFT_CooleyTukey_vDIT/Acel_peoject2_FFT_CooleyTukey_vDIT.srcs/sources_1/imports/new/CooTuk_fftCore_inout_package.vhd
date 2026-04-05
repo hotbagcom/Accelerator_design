@@ -27,7 +27,7 @@ use IEEE.NUMERIC_STD.ALL;
 
 package CooTuk_fftCore_inout_package is
 -- for begininig kep in and out bit length same later you may change 
-    constant C_p_bit_len : integer := 12 ;
+    constant C_p_bit_len : integer := 10 ;
     constant C_w_bit_len : integer := 8 ;
     constant C_v_bit_len : integer := C_p_bit_len + C_w_bit_len;
     
@@ -69,7 +69,7 @@ package CooTuk_fftCore_inout_package is
             R : signed(C_w_bit_len-1 downto 0) ; --8 bit
             I : signed(C_w_bit_len-1 downto 0) ; --8 bit
             end record ;
-      type W_rom  is array (0 to 31) of W_bit_width_min_max ;
+      type W_rom  is array (0 to 63) of W_bit_width_min_max ;
        
       Constant C_Wrom : W_rom := ( --64lük ten yarýsýna kadar  N = 128 e kadar taþýr  
       

@@ -79,16 +79,16 @@ Signal S_ena_DIT_FFT : std_logic := '0';
 Signal S_rdy_d_DIT_FFT : std_logic := '0';
 Signal S_rst_DIT_FFT : std_logic := '0';
 
-Signal S_L : integer range 1 to 10 := 5 ; 
-Signal S_data_time   : signed(11 downto 0) := (others=>'0' ) ;
-Signal S_addr_time   : std_logic_vector(9 downto 0) := (others=>'0') ;
-shared Variable Vs_addr_time   : unsigned(9 downto 0) := (others=>'0') ; 
+Signal S_L : integer range 1 to 10 := 4 ; 
+Signal S_data_time   : pin_width := (Pin=>(others=>'0' )) ;
+Signal S_addr_time   : std_logic_vector(8 downto 0) := (others=>'0') ;
+shared Variable Vs_addr_time   : unsigned(8 downto 0) := (others=>'0') ; 
 Signal S_we_time : std_logic := '0';
 Signal S_rdy_time : std_logic := '0';
 
-Signal S_data_freq  : signed(11 downto 0) := (others=>'0') ; 
-Signal S_addr_freq  : std_logic_vector(9 downto 0) := (others=>'0') ;
-shared Variable Vs_addr_freq  : unsigned(9 downto 0) := (others=>'0') ; 
+Signal S_data_freq  : pin_reel_img := (reel=> (Pin=>(others=>'0' )) , imag=>(Pin=>(others=>'0' ))) ; 
+Signal S_addr_freq  : std_logic_vector(8 downto 0) := (others=>'0') ;
+shared Variable Vs_addr_freq  : unsigned(8 downto 0) := (others=>'0') ; 
 Signal S_re_freq : std_logic := '0';
 Signal S_rdy_freq : std_logic := '0';
 
@@ -100,38 +100,38 @@ Signal S_run_fft : std_logic := '0' ;
 type FFT_packet_buffer is array ( integer range 0 to 31 ) of pin_width ; 
 --Signal S_Time_buffer : FFT_packet_buffer  ;
 signal S_Time_buffer : FFT_packet_buffer := (
-     0 => (Pin => "011111111111"),
-     1 => (Pin => "011110101001"),
-     2 => (Pin => "011010110001"),
-     3 => (Pin => "010100110110"),
-     4 => (Pin => "001101100101"),
-     5 => (Pin => "000101110101"),
-     6 => (Pin => "111110011111"),
-     7 => (Pin => "111000010111"),
-     8 => (Pin => "110100000100"),
-     9 => (Pin => "110001111101"),
-    10 => (Pin => "110010000101"),
-    11 => (Pin => "110100001101"),
-    12 => (Pin => "110111110100"),
-    13 => (Pin => "111100010000"),
-    14 => (Pin => "000000110010"),
-    15 => (Pin => "000100101011"),
-    16 => (Pin => "000111010111"),
-    17 => (Pin => "001000011111"),
-    18 => (Pin => "000111111001"),
-    19 => (Pin => "000101101110"),
-    20 => (Pin => "000010010100"),
-    21 => (Pin => "111110001010"),
-    22 => (Pin => "111001110101"),
-    23 => (Pin => "110101111000"),
-    24 => (Pin => "110010101111"),
-    25 => (Pin => "110000101110"),
-    26 => (Pin => "101111111010"),
-    27 => (Pin => "110000001110"),
-    28 => (Pin => "110001011001"),
-    29 => (Pin => "110011000100"),
-    30 => (Pin => "110100110101"),
-    31 => (Pin => "110110010110")
+     0 => (Pin => "0111111111"),   --11
+     1 => (Pin => "0111101010"),   --01
+     2 => (Pin => "0110101100"),   --01
+     3 => (Pin => "0101001101"),   --10
+     4 => (Pin => "0011011001"),   --01
+     5 => (Pin => "0001011101"),   --01
+     6 => (Pin => "1111100111"),   --11
+     7 => (Pin => "1110000101"),   --11
+     8 => (Pin => "1101000001"),   --00
+     9 => (Pin => "1100011111"),   --01
+    10 => (Pin => "1100100001"),   --01
+    11 => (Pin => "1101000011"),   --01
+    12 => (Pin => "1101111101"),   --00
+    13 => (Pin => "1111000100"),   --00
+    14 => (Pin => "0000001100"),   --10
+    15 => (Pin => "0001001010"),   --11
+    16 => (Pin => "0001110101"),   --11
+    17 => (Pin => "0010000111"),   --11
+    18 => (Pin => "0001111110"),   --01
+    19 => (Pin => "0001011011"),   --10
+    20 => (Pin => "0000100101"),   --00
+    21 => (Pin => "1111100010"),   --10
+    22 => (Pin => "1110011101"),   --01
+    23 => (Pin => "1101011110"),   --00
+    24 => (Pin => "1100101011"),   --11
+    25 => (Pin => "1100001011"),   --10
+    26 => (Pin => "1011111110"),   --10
+    27 => (Pin => "1100000011"),   --10
+    28 => (Pin => "1100010110"),   --01
+    29 => (Pin => "1100110001"),   --00
+    30 => (Pin => "1101001101"),   --01
+    31 => (Pin => "1101100101")    --10
 );
 
 
@@ -139,24 +139,14 @@ signal S_Time_buffer : FFT_packet_buffer := (
 
 
 type FFT_packet_buffer_unsigned is array ( integer range 0 to 31 ) of pin_width_unsigned ; 
-Signal S_Freq_buffer : FFT_packet_buffer_unsigned  ;
+Signal S_Freq_buffer_reel : FFT_packet_buffer_unsigned  ;
+Signal S_Freq_buffer_imag : FFT_packet_buffer_unsigned  ;
+signal S_freq_buffer_magnit : FFT_packet_buffer_unsigned ;
 
-
--- function unsigned_to_signed (
---                        msb_index : integer range 1 to 15 := 11 ;
---                        unsigned_value :  std_logic_vector(11 downto 0) := (others=>'0') 
---                         )   return signed is
---        variable v_temp_signed : std_logic_vector(11 downto 0) := (others=>'0');
---    begin
---        v_temp_signed := unsigned_value ;
---            v_temp_signed(msb_index) := not v_temp_signed(msb_index);
---        return  resize(signed(v_temp_signed),msb_index+1);
---    end function;
- function s_2_uns (
-                        msb_index : integer range 1 to 15 := 11 ;
-                        signed_value :  signed(11 downto 0) := (others=>'0') 
+ function s_2_uns (     msb_index : integer range 1 to 15 ;
+                        signed_value :  signed(C_p_bit_len-1 downto 0) := (others=>'0') 
                          )   return unsigned is
-        variable v_temp : std_logic_vector(11 downto 0) := (others=>'0');
+        variable v_temp : std_logic_vector(C_p_bit_len-1 downto 0) := (others=>'0');
     begin
             v_temp := std_logic_vector( signed_value ) ;
             v_temp(msb_index) := not v_temp(msb_index);
@@ -164,9 +154,20 @@ Signal S_Freq_buffer : FFT_packet_buffer_unsigned  ;
     end function;
 
 
+type spr_data_buffer is array (integer range 0 to 7 )of std_logic_vector(C_p_bit_len*2-1 downto 0)  ;
 
 
- 
+Signal S_rst_sqr             : std_logic := '1' ; 
+Signal S_datain_sqr          : spr_data_buffer :=    (others=>(others=>'0')) ;
+Signal S_datain_sqr_valid    : std_logic := '0' ;
+Signal S_dataout_sqr         : spr_data_buffer :=    (others=>(others=>'0')) ; 
+Signal S_dataout_sqr_valid   : std_logic_vector(7 downto 0) := (others=>'0') ;
+
+
+
+Signal S_sqr_cntr : integer range 0 to 63  := 31;
+Signal S_rdy_freq_pre : std_logic := '0' ;
+
 
 begin
 
@@ -249,16 +250,41 @@ run_fft => S_run_fft ,
                                        -- kare k?k alma durumunu nas?l yapars?n bilemiyorum art?k  ,,
                                        --  ?arp?m? toplad?ktan sonra resize yap?p msb k?sm?ndan al?p i?leme sokabilirsin ??k?? ta ona g?re kaym?? olur 
                        
-                         
-                         
-                         
+generate_sqr_mdl : for j in 0 to 7 generate 
+sqrt_v1_mdl : entity work.sqrt_v1 
+    generic Map(
+        DATA_WIDTH => C_p_bit_len*2
+    )
+    Port  Map(
+        in_clk => CLK_top ,
+        in_rst => S_rst_sqr ,
+        in_data => S_datain_sqr(j) ,
+        in_data_vld => S_datain_sqr_valid ,
+        out_data => S_dataout_sqr(j) ,          
+        out_data_vld => S_dataout_sqr_valid(j) 
+   
+    );   
+    end generate ;                     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
                                                                          
 process (CLK_top)  
 begin      
                                        
 if rising_edge(CLK_top) then          
 S_btn_deb_PRE <= S_btn_deb ;
-    
+S_rdy_freq_pre <= S_rdy_freq ;
     if S_btn_deb(0) ='1' then
         if S_upp_btn_2 <= C_500msecond*4-5  then
         S_upp_btn_2 <= S_upp_btn_2 +1 ;
@@ -321,9 +347,9 @@ S_btn_deb_PRE <= S_btn_deb ;
    -- bir de?er in art?m ve azalt?m?n? yaparak hex ve bit  de?erlerini de?i?tiir 
  ---   S_hex4 <= anf 4 hex 
   --  led <= any 16 bit 
-    S_fre_buffer_indx_value <= S_Freq_buffer(S_fre_buffer_indx_cntr) ;
+    S_fre_buffer_indx_value <= S_Freq_buffer_magnit(S_fre_buffer_indx_cntr) ;
     
-    S_hex4(11 downto 0) <= std_logic_vector( S_fre_buffer_indx_value.Pin ) ;
+    S_hex4(9 downto 0) <= std_logic_vector( S_fre_buffer_indx_value.Pin ) ;
     
     S_hex4(15 downto 12)  <=  std_logic_vector(to_unsigned(S_fre_buffer_indx_cntr,4))  ;
     
@@ -337,14 +363,16 @@ S_btn_deb_PRE <= S_btn_deb ;
     if S_btn_deb_pre(2) ='0' and S_btn_deb(2) ='1' then      
             Vs_addr_time:= (others=> '0') ;   
             S_re_run_fft <= '1' ;
-    elsif Vs_addr_time < "0000100000" and S_rdy_time ='1' then  -- L =5 -> N =32 i?in 
-        S_re_run_fft <= '0' ;
-        S_we_time <= '1' ;
-        S_data_time <=  S_Time_buffer(  to_integer((Vs_addr_time)) ).Pin;
-        Vs_addr_time := ( (Vs_addr_time)  +  (x"1") )  ;
-        S_addr_time <= std_logic_vector(Vs_addr_time) ;
-        if Vs_addr_time = "0000011111" then -- son veriyle birlikte run komutunu gönderiyorum
-            S_run_fft <= '1' ;
+    elsif S_rdy_time ='1' then  -- L =5 -> N =32 i?in 
+        if Vs_addr_time < shift_left(x"01",S_L) then
+            S_re_run_fft <= '0' ;
+            S_we_time <= '1' ;
+            S_data_time.pin <=  S_Time_buffer(  to_integer((Vs_addr_time)) ).Pin;
+            Vs_addr_time := ( (Vs_addr_time)  +  (x"1") )  ;
+            S_addr_time <= std_logic_vector(Vs_addr_time) ;
+            if Vs_addr_time = (shift_left(x"01",S_L)-x"1") then -- son veriyle birlikte run komutunu gönderiyorum
+                S_run_fft <= '1' ;
+            end if ;
         end if ;
     else 
         S_run_fft <= '0' ;
@@ -357,11 +385,15 @@ S_btn_deb_PRE <= S_btn_deb ;
     if S_btn_deb_pre(3) ='0' and S_btn_deb(3) ='1' then      
             Vs_addr_freq := (others=> '0') ;   
             
-    elsif Vs_addr_freq <= "0000100010" and S_rdy_freq ='1' then  -- L =5 -> N =32 i?in  -- zaman kaymas?ndan dolay? 
+            
+            -- resize(shift_left(x"01",S_L)+"10", 9) 
+    elsif Vs_addr_freq <="000010010" and S_rdy_freq ='1' then  -- L =5 -> N =32 i?in  -- zaman kaymas?ndan dolay? 
         S_re_freq <= '1' ;
-            if Vs_addr_freq > "0000000000" then
+            if Vs_addr_freq > "000000000" then
                 
-                S_Freq_buffer(  to_integer(Vs_addr_freq-X"1") ).Pin <= s_2_uns(11 ,S_data_freq ); -- data kullan?labilir formuna 
+                S_Freq_buffer_reel(  to_integer(Vs_addr_freq-X"1") ).Pin <= s_2_uns(C_p_bit_len-1 ,S_data_freq.reel.pin ); -- data kullan?labilir formuna 
+                S_Freq_buffer_imag(  to_integer(Vs_addr_freq-X"1") ).Pin <= s_2_uns(C_p_bit_len-1 ,S_data_freq.imag.pin ); -- data kullan?labilir formuna 
+                
             end if ;
         Vs_addr_freq := ( (Vs_addr_freq)  +  (x"1") )  ;
         S_addr_freq <= std_logic_vector(Vs_addr_freq) ;
@@ -369,6 +401,48 @@ S_btn_deb_PRE <= S_btn_deb ;
     else 
         S_re_freq <= '0' ;
     end if ;
+    
+    
+    
+    if S_dataout_sqr_valid = x"ff" then 
+        S_rst_sqr <= '0' ;
+    elsif S_dataout_sqr_valid = x"00" then 
+        S_rst_sqr <= '1' ;
+    end if ;
+    
+    
+    if S_sqr_cntr = 0 or  (S_sqr_cntr <= 4 and S_dataout_sqr_valid = x"ff" ) then
+    
+        for i in 0 to 7 loop 
+            if S_sqr_cntr <4 then
+                S_datain_sqr(i) <=  std_logic_vector(   ( S_Freq_buffer_reel(i + 8*S_sqr_cntr).pin)* (S_Freq_buffer_reel(i + 8*S_sqr_cntr).pin) + ( S_Freq_buffer_imag(i + 8*S_sqr_cntr).pin)* (S_Freq_buffer_imag(i + 8*S_sqr_cntr).pin)  );
+                S_datain_sqr_valid <= '1' ;
+             else 
+                S_datain_sqr_valid <= '0' ;
+             end if ;
+                
+            if S_sqr_cntr >0 then
+                S_Freq_buffer_magnit(i + 8*(S_sqr_cntr-1)).pin <= unsigned(S_dataout_sqr(i)(C_p_bit_len*2-1 downto C_p_bit_len) )  ;  
+            end if ;
+        end loop ;
+     
+     
+        if S_sqr_cntr = 0 then
+            S_sqr_cntr <= 1 ;
+        else 
+            S_sqr_cntr <= S_sqr_cntr + 1 ;
+            
+        end if ;
+        
+    
+    elsif S_rdy_freq = '0' and S_rdy_freq_pre = '1' then
+    S_sqr_cntr <= 0 ;
+    
+    end if ;
+    
+    
+    
+    
     
     
     
