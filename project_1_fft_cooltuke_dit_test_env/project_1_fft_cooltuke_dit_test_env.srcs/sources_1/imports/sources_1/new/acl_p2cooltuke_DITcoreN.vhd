@@ -181,8 +181,6 @@ begin
                 if S_done(0) = '1' then -- aktif tüm modüller done olursa -- hepsi ayný anda done olsa iyi olur 
                 
                     if  L_cntr <= L_cntr_user_max then 
-                        L_cntr <= L_cntr + 1  ;-- 1 clk sonradan geliyor ve bu modüle ilk girdiðinde modüle 4lü giriþi  çalýþtýracak çünkü L= 1 , 
-               
                     
                         for j in 0 to number_of_pin_div2_minus1 loop -- N = 32 için N/2 tanesi 16 tane FFTcore2 lazým 
                         
@@ -199,7 +197,7 @@ begin
                                  
                             else 
 --                                V_W_m := std_logic_vector(to_unsigned(j,Lmax_int+1)) ;--  sra Lmax_int ;
-                                V_W_m := shift_left(to_unsigned(j, 8), L_cntr_user_max - L_cntr+ W_index_multiplier); -- Lmax_int -L_cntr
+                                V_W_m := shift_left(to_unsigned(j, 8), W_index_multiplier + L_cntr_user_max - L_cntr); -- Lmax_int -L_cntr
                             end if ;
                             
                             
@@ -235,7 +233,7 @@ begin
                             
                             
                             
-                            W(j) <= C_Wrom( to_integer( V_W_m(L_cntr_user_max downto 0) )  );
+                            W(j) <= C_Wrom( to_integer(     resize (   V_W_m , 6)   )  );
                             
                             M_N.input(j)(i) <= M_N.output( to_integer(unsigned(V_ix_m)) )( to_integer(unsigned(V_sg_m)) )   ;
                         
@@ -244,6 +242,8 @@ begin
                         end loop ;
                         end loop ;
                     
+                        L_cntr <= L_cntr + 1  ;-- 1 clk sonradan geliyor ve bu modüle ilk girdiðinde modüle 4lü giriþi  çalýþtýracak çünkü L= 1 , 
+               
                     
                     else
                         

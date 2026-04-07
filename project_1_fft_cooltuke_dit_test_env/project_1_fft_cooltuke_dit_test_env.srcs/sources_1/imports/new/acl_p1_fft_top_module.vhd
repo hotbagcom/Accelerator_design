@@ -103,39 +103,75 @@ Signal S_run_fft : std_logic := '0' ;
 type FFT_packet_buffer is array ( integer range 0 to 31 ) of pin_width ; 
 --Signal S_Time_buffer : FFT_packet_buffer  ;
 
-signal S_Time_buffer : FFT_packet_buffer := (
+signal S_Time_buffer : FFT_packet_buffer := 
+
+(
+
      0 => (Pin => "0111111111"),
-     1 => (Pin => "0101111110"),
-     2 => (Pin => "0001011110"),
-     3 => (Pin => "1101100101"),
-     4 => (Pin => "1100001011"),
-     5 => (Pin => "1100101101"),
-     6 => (Pin => "1101011101"),
-     7 => (Pin => "1101101001"),
-     8 => (Pin => "1110000000"),
-     9 => (Pin => "1111010100"),
-    10 => (Pin => "0001001001"),
-    11 => (Pin => "0010001100"),
-    12 => (Pin => "0001110101"),
-    13 => (Pin => "0000101101"),
-    14 => (Pin => "1111111100"),
-    15 => (Pin => "1111111001"),
+     1 => (Pin => "0110001001"),
+     2 => (Pin => "0001100010"),
+     3 => (Pin => "1100011001"),
+     4 => (Pin => "1001001100"),
+     5 => (Pin => "1001010001"),
+     6 => (Pin => "1100010100"),
+     7 => (Pin => "0000100111"),
+     8 => (Pin => "0011111111"),
+     9 => (Pin => "0101000011"),
+    10 => (Pin => "0011101100"),
+    11 => (Pin => "0001000110"),
+    12 => (Pin => "1110110101"),
+    13 => (Pin => "1101111101"),
+    14 => (Pin => "1110011110"),
+    15 => (Pin => "1111100000"),
     16 => (Pin => "0000000000"),
-    17 => (Pin => "1111111001"),
-    18 => (Pin => "1111111100"),
-    19 => (Pin => "0000101101"),
-    20 => (Pin => "0001110101"),
-    21 => (Pin => "0010001100"),
-    22 => (Pin => "0001001001"),
-    23 => (Pin => "1111010100"),
-    24 => (Pin => "1110000000"),
-    25 => (Pin => "1101101001"),
-    26 => (Pin => "1101011101"),
-    27 => (Pin => "1100101101"),
-    28 => (Pin => "1100001011"),
-    29 => (Pin => "1101100101"),
-    30 => (Pin => "0001011110"),
-    31 => (Pin => "0101111110")
+    17 => (Pin => "1111100000"),
+    18 => (Pin => "1110011110"),
+    19 => (Pin => "1101111101"),
+    20 => (Pin => "1110110101"),
+    21 => (Pin => "0001000110"),
+    22 => (Pin => "0011101100"),
+    23 => (Pin => "0101000011"),
+    24 => (Pin => "0100000000"),
+    25 => (Pin => "0000100111"),
+    26 => (Pin => "1100010100"),
+    27 => (Pin => "1001010001"),
+    28 => (Pin => "1001001100"),
+    29 => (Pin => "1100011001"),
+    30 => (Pin => "0001100010"),
+    31 => (Pin => "0110001001")
+    
+--     0 => (Pin => "0111111111"),
+--     1 => (Pin => "0101111110"),
+--     2 => (Pin => "0001011110"),
+--     3 => (Pin => "1101100101"),
+--     4 => (Pin => "1100001011"),
+--     5 => (Pin => "1100101101"),
+--     6 => (Pin => "1101011101"),
+--     7 => (Pin => "1101101001"),
+--     8 => (Pin => "1110000000"),
+--     9 => (Pin => "1111010100"),
+--    10 => (Pin => "0001001001"),
+--    11 => (Pin => "0010001100"),
+--    12 => (Pin => "0001110101"),
+--    13 => (Pin => "0000101101"),
+--    14 => (Pin => "1111111100"),
+--    15 => (Pin => "1111111001"),
+--    16 => (Pin => "0000000000"),
+--    17 => (Pin => "1111111001"),
+--    18 => (Pin => "1111111100"),
+--    19 => (Pin => "0000101101"),
+--    20 => (Pin => "0001110101"),
+--    21 => (Pin => "0010001100"),
+--    22 => (Pin => "0001001001"),
+--    23 => (Pin => "1111010100"),
+--    24 => (Pin => "1110000000"),
+--    25 => (Pin => "1101101001"),
+--    26 => (Pin => "1101011101"),
+--    27 => (Pin => "1100101101"),
+--    28 => (Pin => "1100001011"),
+--    29 => (Pin => "1101100101"),
+--    30 => (Pin => "0001011110"),
+--    31 => (Pin => "0101111110")
 );
 
 
@@ -364,7 +400,7 @@ case ( St_chanin_reaction_CoolTuke  ) is
                 when 3 =>
                 S_data_time.pin <=  S_Time_buffer(  to_integer( resize( (unsigned(S_addr_time)  +  (x"01"))  ,4 )) ).Pin;
                 when 4 =>
-                S_data_time.pin <=  S_Time_buffer(  to_integer( resize( (unsigned(S_addr_time)  +  (x"01"))  ,5)) ).Pin;
+                S_data_time.pin <=  S_Time_buffer(  to_integer( resize( (unsigned(S_addr_time)  +  (x"01"))  ,5)) ).Pin; --.pin(5 downto 0) <=  signed( resize( unsigned( resize( (unsigned(S_addr_time)  +  (x"01") ) ,5)),6) ) ; --S_Time_buffer(  to_integer( resize( (unsigned(S_addr_time)  +  (x"01"))  ,5)) ).Pin;
                 when 5 =>
                 S_data_time.pin <=  S_Time_buffer(  to_integer( resize( (unsigned(S_addr_time)  +  (x"01"))  ,6)) ).Pin;
                 when 6 =>
@@ -418,7 +454,8 @@ case ( St_chanin_reaction_CoolTuke  ) is
         
     else 
         S_re_freq <= '0' ;
-        St_chanin_reaction_CoolTuke <= st_Magnitude_complex ; 
+        St_chanin_reaction_CoolTuke <= st_Magnitude_complex;
+            S_sqr_cntr <= 0 ;
     end if ;
     
     
@@ -434,9 +471,9 @@ case ( St_chanin_reaction_CoolTuke  ) is
         end if ;
         
         
-        if S_sqr_cntr = 0 or  (S_sqr_cntr <= 8 and S_dataout_sqr_valid = x"ff" ) then
+        if S_sqr_cntr = 0 or  (S_sqr_cntr <= 4 and S_dataout_sqr_valid = x"ff" ) then
             for i in 0 to 7 loop 
-                if S_sqr_cntr <8 then
+                if S_sqr_cntr <4 then
                     S_datain_sqr(i) <=  std_logic_vector(   ( S_Freq_buffer_reel(i + 8*S_sqr_cntr).pin)* (S_Freq_buffer_reel(i + 8*S_sqr_cntr).pin) + ( S_Freq_buffer_imag(i + 8*S_sqr_cntr).pin)* (S_Freq_buffer_imag(i + 8*S_sqr_cntr).pin)  );
                     S_datain_sqr_valid <= '1' ;
                  else 
@@ -454,10 +491,6 @@ case ( St_chanin_reaction_CoolTuke  ) is
             else  S_sqr_cntr <= S_sqr_cntr + 1 ;
             end if ;
             
-        
-        elsif S_sqr_cntr /= 0 and  S_rdy_freq = '0'  then
-            S_sqr_cntr <= 0 ;
-        
         end if ;
         
     

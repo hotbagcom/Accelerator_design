@@ -36,7 +36,7 @@ entity acl_p1_cooltuke_DITcore_2 is
     W_Max     : signed(C_w_bit_len-1 downto 0) := x"7f"   -- 8bit
     );
     Port ( 
-    ena : std_logic := '1' ;
+    ena : std_logic := '0' ;
     
     input : in segm ; -- 0 w ile çapýmdan toplanan giriþ , 1 w ile çarpýlan giriþ 
     W : in W_bit_width_min_max  ;
@@ -91,7 +91,8 @@ begin
         
         
         else 
-        output  <= input   ;
+        output  <= input   ;                                        
+        done <= '1' ;
          -- async reset yapýp kullanlmayan modüllerde giriþlreden çýkýþlara direk baðlantý yapabilirsin 
          -- tavsiye edilmez : düþündüðümü belirtmek için yazdým 
          end if ;
