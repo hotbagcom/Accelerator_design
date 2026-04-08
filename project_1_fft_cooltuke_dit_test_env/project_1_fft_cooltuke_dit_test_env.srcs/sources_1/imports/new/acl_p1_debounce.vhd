@@ -44,9 +44,9 @@ entity acl_p1_debounce is
         actv_sw  : in std_logic := '0';
         
         btn : in std_logic_vector(4 downto 0)   := "00000" ;
-          btn_deb : out std_logic_vector(4 downto 0)  ;
+          btn_deb : out std_logic_vector(4 downto 0) := "00001"  ;
         sw : in std_logic_vector( 15 downto 0 )   := X"0000" ;
-          sw_deb : out std_logic_vector( 15 downto 0)  ;
+          sw_deb : out std_logic_vector( 15 downto 0)  := X"0000" ;
         
         rst : in std_logic := '1'
     );
